@@ -1,0 +1,10 @@
+F:\微服务\ICH.Sugar\bin\release\netcoreapp2.0\ICH.Sugar.deps.json
+F:\微服务\ICH.Sugar\bin\release\netcoreapp2.0\ICH.Sugar.dll
+F:\微服务\ICH.Sugar\bin\release\netcoreapp2.0\ICH.Sugar.pdb
+F:\微服务\ICH.Sugar\bin\release\netcoreapp2.0\Microsoft.Extensions.Caching.Abstractions.dll
+F:\微服务\ICH.Sugar\bin\release\netcoreapp2.0\Microsoft.Extensions.Caching.Abstractions.xml
+F:\微服务\ICH.Sugar\obj\release\netcoreapp2.0\ICH.Sugar.csproj.CoreCompileInputs.cache
+F:\微服务\ICH.Sugar\obj\release\netcoreapp2.0\ICH.Sugar.AssemblyInfoInputs.cache
+F:\微服务\ICH.Sugar\obj\release\netcoreapp2.0\ICH.Sugar.AssemblyInfo.cs
+F:\微服务\ICH.Sugar\obj\release\netcoreapp2.0\ICH.Sugar.dll
+F:\微服务\ICH.Sugar\obj\release\netcoreapp2.0\ICH.Sugar.pdb

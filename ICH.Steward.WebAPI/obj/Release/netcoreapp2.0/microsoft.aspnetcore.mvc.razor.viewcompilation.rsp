@@ -1,0 +1,5 @@
+F:\微服务\ICH.Steward.WebAPI
+--output-path=obj\release\netcoreapp2.0\
+--application-name=ICH.Steward.WebAPI
+--content-root=F:\微服务\ICH.Steward.WebAPI
+--file=

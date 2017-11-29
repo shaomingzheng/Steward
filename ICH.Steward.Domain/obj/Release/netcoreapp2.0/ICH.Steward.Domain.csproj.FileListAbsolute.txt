@@ -1,0 +1,12 @@
+F:\微服务\ICH.Steward.Domain\bin\Release\netcoreapp2.0\ICH.Steward.Domain.deps.json
+F:\微服务\ICH.Steward.Domain\bin\Release\netcoreapp2.0\ICH.Steward.Domain.dll
+F:\微服务\ICH.Steward.Domain\bin\Release\netcoreapp2.0\ICH.Steward.Domain.pdb
+F:\微服务\ICH.Steward.Domain\obj\Release\netcoreapp2.0\ICH.Steward.Domain.csproj.CoreCompileInputs.cache
+F:\微服务\ICH.Steward.Domain\obj\Release\netcoreapp2.0\ICH.Steward.Domain.AssemblyInfoInputs.cache
+F:\微服务\ICH.Steward.Domain\obj\Release\netcoreapp2.0\ICH.Steward.Domain.AssemblyInfo.cs
+F:\微服务\ICH.Steward.Domain\obj\Release\netcoreapp2.0\ICH.Steward.Domain.dll
+F:\微服务\ICH.Steward.Domain\obj\Release\netcoreapp2.0\ICH.Steward.Domain.pdb
+F:\微服务\ICH.Steward.Domain\bin\release\netcoreapp2.0\ICH.Sugar.dll
+F:\微服务\ICH.Steward.Domain\bin\release\netcoreapp2.0\Microsoft.Extensions.Caching.Abstractions.dll
+F:\微服务\ICH.Steward.Domain\bin\release\netcoreapp2.0\ICH.Sugar.pdb
+F:\微服务\ICH.Steward.Domain\bin\release\netcoreapp2.0\Microsoft.Extensions.Caching.Abstractions.xml
