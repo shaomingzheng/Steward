@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using ICH.Core.Net;
 using ICH.Core.Regular;
+using ICH.Core.Security;
 using ICH.Sugar.Conn;
+using Microsoft.Extensions.Caching.Memory;
+using Newtonsoft.Json;
 using SqlSugar;
 
 namespace ICH.Sugar
@@ -11,10 +15,12 @@ namespace ICH.Sugar
     /// </summary>
     public class SugarFactory
     {
+        private IMemoryCache _memoryCache;
         private DBContext _context;
-        public SugarFactory(DBContext context)
+        public SugarFactory(DBContext context, IMemoryCache memoryCache)
         {
             _context = context;
+            _memoryCache = memoryCache;
         }
         /// <summary>
         /// 定义仓储
@@ -26,7 +32,7 @@ namespace ICH.Sugar
         {
             if (!Regular.IsGuidByParse(connectionString))
                 return  new SqlSugarClient(new ConnectionConfig { ConnectionString = connectionString, DbType = Types[providerName], IsAutoCloseConnection = true });
-            var entity = _context.GetConnectionManage(connectionString);
+            var entity = GetConnectionManage(connectionString);
             SqlSugarClient db;
             string connectionStr;
             //判断当前主链接是否可用
@@ -59,5 +65,24 @@ namespace ICH.Sugar
             {"Sqlite",DbType.Sqlite},
             {"Oracle",DbType.Oracle},
         };
+
+        public ConnectionManage GetConnectionManage(string dbKey)
+        {
+            var entity = _memoryCache.Get<ConnectionManage>(dbKey);
+            if (entity != null)
+            {
+                return entity;
+            }
+            var ss = string.Format("key={0}&entityKey={1}", _context.APIKey, dbKey);
+            var result = HttpMethods.PostExecuteResult(_context.DBUrl, "POST", ss);
+            var data = JsonConvert.DeserializeObject<dynamic>(result);
+            entity = data;
+            if (!string.IsNullOrEmpty(entity.PkConnection))
+                entity.PkConnection = DES.Decrypt(entity.PkConnection, entity.BasicsId);
+            if (!string.IsNullOrEmpty(entity.SpareConnection))
+                entity.SpareConnection = DES.Decrypt(entity.SpareConnection, entity.BasicsId);
+            _memoryCache.Set(dbKey, entity, TimeSpan.FromSeconds(300));
+            return entity;
+        }
     }
 }

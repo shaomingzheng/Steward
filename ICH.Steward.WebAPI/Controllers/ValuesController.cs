@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using ICH.Core.Cache;
 using ICH.Core.Web;
 using ICH.Steward.Domain.Interfaces.Repositories;
 using Microsoft.AspNetCore.Cors;
@@ -13,19 +14,22 @@ namespace ICH.Steward.WebAPI.Controllers
     public class ValuesController : Controller
     {
         private IBaseUserRepository _baseUserRepository;
-        public ValuesController(IBaseUserRepository baseUserRepository)
+        private ICacheService _cache;
+        public ValuesController(IBaseUserRepository baseUserRepository, ICacheService cache)
         {
             _baseUserRepository = baseUserRepository;
+            _cache = cache;
         }
 
         // GET api/values
         [HttpGet]
         public async Task<JsonResult> Get()
         {
+            bool r = await _cache.AddAsync("test", "ichnb");
             //bool r=  await _baseUserRepository.BatchSetOpenIdAsync(); //同步openid
             //int total = 0;
-            var list =await _baseUserRepository.FindListAsync(t => true, "realname", true, 10, 1);
-            return Json(ResponseResult.Execute(list));
+            // var list =await _baseUserRepository.FindListAsync(t => true, "realname", true, 10, 1);
+            return Json(ResponseResult.Execute(r));
             //return new string[] { "value1", "value2" };
         }
 

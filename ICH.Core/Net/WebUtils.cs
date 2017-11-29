@@ -341,7 +341,8 @@ namespace ICH.Core.Net
                     req.Headers.Add(key, headerParams[key]);
                 }
             }
-           // req.ServicePoint.Expect100Continue = false;
+            // req.ServicePoint.Expect100Continue = false;   //不支持跨平台
+            req.Accept = "*/*";
             req.Method = method;
             req.KeepAlive = true;
             req.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko";

@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using ICH.Steward.Domain.DEncrypt;
 using ICH.Steward.Domain.Interfaces.Repositories;
@@ -38,13 +40,17 @@ namespace ICH.Steward.Domain.Repositories
                 
             });
             result.Start();
-
-        
             return result;
         }
 
+       
         public Task<bool> InsertAsync(Base_UserEntity entity)
         {
+            Sys_UserEntity user=new Sys_UserEntity();
+            var t10 = _sugarFactory.GetInstance(_options.First().ConnectionString, _options.First().ProviderName).Updateable<Base_UserEntity>()
+                .UpdateColumns(it => new {it.OpenId,it.Account})
+                .Where(it => it.UserId == entity.UserId).ExecuteCommand();
+
             return Task.FromResult(_sugarFactory.GetInstance(_options.First().ConnectionString, _options.First().ProviderName).Insertable(entity)
                 .ExecuteCommandIdentityIntoEntity());
         }

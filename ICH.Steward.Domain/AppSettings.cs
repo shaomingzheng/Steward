@@ -9,6 +9,11 @@
         public static string ClientSecret { get; set; }
 
         public static string UserInfoEndpoint { get; set; }
-        public static string GetDb { get; set; }
+
+        public static bool UseRedis { get; set; }
+
+        public static string RedisConnectionString { get; set; }
+
+        public static string RedisInstanceName { get; set; }
     }
 }

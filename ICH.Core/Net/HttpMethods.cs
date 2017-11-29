@@ -28,7 +28,7 @@ namespace ICH.Core.Net
             //如果是发送HTTPS请求  
             if (url.StartsWith("https", StringComparison.OrdinalIgnoreCase))
             {
-                ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(CheckValidationResult);
+                ServicePointManager.ServerCertificateValidationCallback = CheckValidationResult;
                 request = WebRequest.Create(url) as HttpWebRequest;
                 request.ProtocolVersion = HttpVersion.Version10;
             }
@@ -44,34 +44,18 @@ namespace ICH.Core.Net
             request.AllowAutoRedirect = false;
 
 
-
-            StreamWriter requestStream = null;
-            WebResponse response = null;
             string responseStr = null;
 
-            try
-            {
-                requestStream = new StreamWriter(request.GetRequestStream());
-                requestStream.Write(param);
-                requestStream.Close();
+            var requestStream = new StreamWriter(request.GetRequestStream());
+            requestStream.Write(param);
+            requestStream.Close();
 
-                response = request.GetResponse();
-                if (response != null)
-                {
-                    StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8);
-                    responseStr = reader.ReadToEnd();
-                    reader.Close();
-                }
-            }
-            catch (Exception)
+            var response = request.GetResponse();
+            if (response != null)
             {
-                throw;
-            }
-            finally
-            {
-                request = null;
-                requestStream = null;
-                response = null;
+                StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8);
+                responseStr = reader.ReadToEnd();
+                reader.Close();
             }
 
             return responseStr;
@@ -134,15 +118,15 @@ namespace ICH.Core.Net
         {
             string contentType = "image/jpeg";
             //待请求参数数组
-            FileStream Pic = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-            byte[] PicByte = new byte[Pic.Length];
-            Pic.Read(PicByte, 0, PicByte.Length);
-            int lengthFile = PicByte.Length;
+            FileStream pic = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            byte[] picByte = new byte[pic.Length];
+            pic.Read(picByte, 0, picByte.Length);
+            int lengthFile = picByte.Length;
 
             //构造请求地址
 
             //设置HttpWebRequest基本信息
-            HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(strUrl);
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(strUrl);
             //设置请求方式：get、post
             request.Method = "POST";
             //设置boundaryValue
@@ -176,10 +160,10 @@ namespace ICH.Core.Net
             {
                 //发送数据请求服务器
                 requestStream.Write(postHeaderBytes, 0, postHeaderBytes.Length);
-                requestStream.Write(PicByte, 0, lengthFile);
+                requestStream.Write(picByte, 0, lengthFile);
                 requestStream.Write(boundayBytes, 0, boundayBytes.Length);
-                HttpWebResponse HttpWResp = (HttpWebResponse)request.GetResponse();
-                myStream = HttpWResp.GetResponseStream();
+                HttpWebResponse httpWResp = (HttpWebResponse)request.GetResponse();
+                myStream = httpWResp.GetResponseStream();
             }
             catch (WebException e)
             {
@@ -204,7 +188,7 @@ namespace ICH.Core.Net
                 responseData.Append(line);
             }
             myStream.Close();
-            Pic.Close();
+            pic.Close();
 
             return responseData.ToString();
         }
@@ -223,7 +207,7 @@ namespace ICH.Core.Net
             //如果是发送HTTPS请求  
             if (url.StartsWith("https", StringComparison.OrdinalIgnoreCase))
             {
-                ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(CheckValidationResult);
+                ServicePointManager.ServerCertificateValidationCallback = CheckValidationResult;
                 request = WebRequest.Create(url) as HttpWebRequest;
                 request.ProtocolVersion = HttpVersion.Version10;
             }
@@ -237,34 +221,22 @@ namespace ICH.Core.Net
             request.Timeout = 15000;
             request.AllowAutoRedirect = false;
 
-            StreamWriter requestStream = null;
-            WebResponse response = null;
+            StreamWriter requestStream;
+            WebResponse response;
             string responseStr = null;
 
-            try
-            {
-                requestStream = new StreamWriter(request.GetRequestStream());
-                requestStream.Write(param);
-                requestStream.Close();
+            requestStream = new StreamWriter(request.GetRequestStream());
+            requestStream.Write(param);
+            requestStream.Close();
 
-                response = request.GetResponse();
-                if (response != null)
-                {
-                    StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8);
-                    responseStr = reader.ReadToEnd();
-                    reader.Close();
-                }
-            }
-            catch (Exception)
+            response = request.GetResponse();
+            if (response != null)
             {
-                throw;
+                StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8);
+                responseStr = reader.ReadToEnd();
+                reader.Close();
             }
-            finally
-            {
-                request = null;
-                requestStream = null;
-                response = null;
-            }
+
 
             return responseStr;
         }
@@ -429,13 +401,13 @@ namespace ICH.Core.Net
         private string HttpPost(string url, IDictionary<object, object> param, string filePath)
         {
             string boundary = "---------------------------" + DateTime.Now.Ticks.ToString("x");
-            byte[] boundarybytes = System.Text.Encoding.ASCII.GetBytes("\r\n--" + boundary + "\r\n");
+            byte[] boundarybytes = Encoding.ASCII.GetBytes("\r\n--" + boundary + "\r\n");
 
             HttpWebRequest wr = (HttpWebRequest)WebRequest.Create(url);
             wr.ContentType = "multipart/form-data; boundary=" + boundary;
             wr.Method = "POST";
             wr.KeepAlive = true;
-            wr.Credentials = System.Net.CredentialCache.DefaultCredentials;
+            wr.Credentials = CredentialCache.DefaultCredentials;
 
             Stream rs = wr.GetRequestStream();
             string responseStr = null;
@@ -445,14 +417,14 @@ namespace ICH.Core.Net
             {
                 rs.Write(boundarybytes, 0, boundarybytes.Length);
                 string formitem = string.Format(formdataTemplate, key, param[key]);
-                byte[] formitembytes = System.Text.Encoding.UTF8.GetBytes(formitem);
+                byte[] formitembytes = Encoding.UTF8.GetBytes(formitem);
                 rs.Write(formitembytes, 0, formitembytes.Length);
             }
             rs.Write(boundarybytes, 0, boundarybytes.Length);
 
             string headerTemplate = "Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"\r\nContent-Type: {2}\r\n\r\n";
             string header = string.Format(headerTemplate, "pic", filePath, "text/plain");
-            byte[] headerbytes = System.Text.Encoding.UTF8.GetBytes(header);
+            byte[] headerbytes = Encoding.UTF8.GetBytes(header);
             rs.Write(headerbytes, 0, headerbytes.Length);
 
             FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
@@ -464,7 +436,7 @@ namespace ICH.Core.Net
             }
             fileStream.Close();
 
-            byte[] trailer = System.Text.Encoding.ASCII.GetBytes("\r\n--" + boundary + "--\r\n");
+            byte[] trailer = Encoding.ASCII.GetBytes("\r\n--" + boundary + "--\r\n");
             rs.Write(trailer, 0, trailer.Length);
             rs.Close();
 
@@ -502,35 +474,35 @@ namespace ICH.Core.Net
         public static string HttpPost(string url, IDictionary<object, object> param, byte[] fileByte)
         {
             string boundary = "---------------------------" + DateTime.Now.Ticks.ToString("x");
-            byte[] boundarybytes = System.Text.Encoding.ASCII.GetBytes("\r\n--" + boundary + "\r\n");
+            byte[] boundarybytes = Encoding.ASCII.GetBytes("\r\n--" + boundary + "\r\n");
 
             HttpWebRequest wr = (HttpWebRequest)WebRequest.Create(url);
             wr.ContentType = "multipart/form-data; boundary=" + boundary;
             wr.Method = "POST";
             wr.KeepAlive = true;
-            wr.Credentials = System.Net.CredentialCache.DefaultCredentials;
+            wr.Credentials = CredentialCache.DefaultCredentials;
 
             Stream rs = wr.GetRequestStream();
-            string responseStr = null;
+            string responseStr;
 
             string formdataTemplate = "Content-Disposition: form-data; name=\"{0}\"\r\n\r\n{1}";
             foreach (string key in param.Keys)
             {
                 rs.Write(boundarybytes, 0, boundarybytes.Length);
                 string formitem = string.Format(formdataTemplate, key, param[key]);
-                byte[] formitembytes = System.Text.Encoding.UTF8.GetBytes(formitem);
+                byte[] formitembytes = Encoding.UTF8.GetBytes(formitem);
                 rs.Write(formitembytes, 0, formitembytes.Length);
             }
             rs.Write(boundarybytes, 0, boundarybytes.Length);
 
             string headerTemplate = "Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"\r\nContent-Type: {2}\r\n\r\n";
             string header = string.Format(headerTemplate, "pic", fileByte, "text/plain");//image/jpeg
-            byte[] headerbytes = System.Text.Encoding.UTF8.GetBytes(header);
+            byte[] headerbytes = Encoding.UTF8.GetBytes(header);
             rs.Write(headerbytes, 0, headerbytes.Length);
 
             rs.Write(fileByte, 0, fileByte.Length);
 
-            byte[] trailer = System.Text.Encoding.ASCII.GetBytes("\r\n--" + boundary + "--\r\n");
+            byte[] trailer = Encoding.ASCII.GetBytes("\r\n--" + boundary + "--\r\n");
             rs.Write(trailer, 0, trailer.Length);
             rs.Close();
 
@@ -541,7 +513,6 @@ namespace ICH.Core.Net
                 Stream stream2 = wresp.GetResponseStream();
                 StreamReader reader2 = new StreamReader(stream2);
                 responseStr = reader2.ReadToEnd();
-                // logger.Error(string.Format("File uploaded, server response is: {0}", responseStr));
             }
             catch (Exception ex)
             {
@@ -549,7 +520,6 @@ namespace ICH.Core.Net
                 if (wresp != null)
                 {
                     wresp.Close();
-                    wresp = null;
                 }
                 throw;
             }
@@ -616,15 +586,15 @@ namespace ICH.Core.Net
 
                 Stream strm = response.GetResponseStream();
 
-                StreamReader sr = new StreamReader(strm, System.Text.Encoding.UTF8);
+                StreamReader sr = new StreamReader(strm, Encoding.UTF8);
 
                 string line;
 
-                System.Text.StringBuilder sb = new System.Text.StringBuilder();
+                StringBuilder sb = new StringBuilder();
 
                 while ((line = sr.ReadLine()) != null)
                 {
-                    sb.Append(line + System.Environment.NewLine);
+                    sb.Append(line + Environment.NewLine);
                 }
                 sr.Close();
                 strm.Close();
@@ -636,14 +606,6 @@ namespace ICH.Core.Net
 
                 throw ex;
             }
-        }
-
-        private static bool RemoteCertificateValidate(object sender, X509Certificate cert, X509Chain chain, SslPolicyErrors error)
-        {
-            // trust any certificate!!!
-            //System.Console.WriteLine("Warning, trust any certificate");
-            //为了通过证书验证，总是返回true
-            return true;
         }
         #endregion
     }
