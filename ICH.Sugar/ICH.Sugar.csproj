@@ -5,8 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ICH.Util.Core" Version="1.0.1" />
-    <PackageReference Include="SqlSugar.Core" Version="1.1.1" />
+    <PackageReference Include="sqlSugarCore" Version="4.6.0.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ICH.Core\ICH.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>

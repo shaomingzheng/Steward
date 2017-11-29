@@ -1,5 +1,6 @@
 ﻿using System;
-using ICH.Util;
+using ICH.Core.Net;
+using ICH.Core.Security;
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 
@@ -30,9 +31,9 @@ namespace ICH.Sugar.Conn
             var data = JsonConvert.DeserializeObject<dynamic>(result);
             entity = data;
             if (!string.IsNullOrEmpty(entity.PkConnection))
-                entity.PkConnection = DESEncrypt.Decrypt(entity.PkConnection, entity.BasicsId);
+                entity.PkConnection = DES.Decrypt(entity.PkConnection, entity.BasicsId);
             if (!string.IsNullOrEmpty(entity.SpareConnection))
-                entity.SpareConnection = DESEncrypt.Decrypt(entity.SpareConnection, entity.BasicsId);
+                entity.SpareConnection = DES.Decrypt(entity.SpareConnection, entity.BasicsId);
             _cache.Set(dbKey,entity,TimeSpan.FromSeconds(300));
             return entity;
         }

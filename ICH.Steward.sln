@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ICH.Steward.Domain", "ICH.S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ICH.Sugar", "ICH.Sugar\ICH.Sugar.csproj", "{4A9DA137-59FD-4E7F-B10F-D4949C8B4177}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ICH.Core", "ICH.Core\ICH.Core.csproj", "{90EC63FD-31B8-449C-810F-6F6A380F16A3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{4A9DA137-59FD-4E7F-B10F-D4949C8B4177}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4A9DA137-59FD-4E7F-B10F-D4949C8B4177}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4A9DA137-59FD-4E7F-B10F-D4949C8B4177}.Release|Any CPU.Build.0 = Release|Any CPU
+		{90EC63FD-31B8-449C-810F-6F6A380F16A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90EC63FD-31B8-449C-810F-6F6A380F16A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90EC63FD-31B8-449C-810F-6F6A380F16A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90EC63FD-31B8-449C-810F-6F6A380F16A3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

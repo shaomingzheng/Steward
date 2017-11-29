@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using ICH.Util.WebControl;
 using SqlSugar;
+using ICH.Core.Web;
 
 namespace ICH.Steward.Domain.Interfaces.Repositories
 {

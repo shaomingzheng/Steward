@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using ICH.Core.Regular;
 using ICH.Sugar.Conn;
-using ICH.Util;
 using SqlSugar;
 
 namespace ICH.Sugar
@@ -24,7 +24,7 @@ namespace ICH.Sugar
         /// <returns></returns>
         public SqlSugarClient GetInstance(string connectionString,string providerName)
         {
-            if (!ValidateUtil.IsGuidByParse(connectionString))
+            if (!Regular.IsGuidByParse(connectionString))
                 return  new SqlSugarClient(new ConnectionConfig { ConnectionString = connectionString, DbType = Types[providerName], IsAutoCloseConnection = true });
             var entity = _context.GetConnectionManage(connectionString);
             SqlSugarClient db;
@@ -45,6 +45,7 @@ namespace ICH.Sugar
                 db.Ado.GetScalar("select 1+1");
                 return db;
             }
+            
         }
 
         private static readonly Dictionary<string, DbType> Types = new Dictionary<string, DbType>

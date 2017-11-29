@@ -36,6 +36,7 @@ namespace ICH.Steward.WebAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            Configuration.Bind(null);
             services.AddSingleton<IConfiguration>(Configuration);
 
             services.AddAuthorization(options =>
