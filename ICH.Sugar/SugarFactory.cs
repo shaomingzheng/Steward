@@ -74,7 +74,7 @@ namespace ICH.Sugar
                 return entity;
             }
             var ss = string.Format("key={0}&entityKey={1}", _context.APIKey, dbKey);
-            var result = HttpMethods.PostExecuteResult(_context.DBUrl, "POST", ss);
+            var result = WebUtils.DoPost(_context.DBUrl, ss);
             var data = JsonConvert.DeserializeObject<dynamic>(result);
             entity = data;
             if (!string.IsNullOrEmpty(entity.PkConnection))
