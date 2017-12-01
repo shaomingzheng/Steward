@@ -1,12 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Net;
-using System.Net.Security;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using System.Threading.Tasks;
-using System.Web;
 
 namespace ICH.Core.Net
 {
@@ -15,482 +10,363 @@ namespace ICH.Core.Net
     /// </summary>
     public sealed class WebUtils
     {
-        private static int _timeout = 20000;    //请求与响应的超时时间
-        private static int _readWriteTimeout = 60000;   //等待读取数据完成的超时时间
+        #region  HTTP GET
 
-        public static string DoPost(string url, IDictionary<string, string> parameters, string charset, CookieContainer cookie = null)
+        /// <summary>
+        /// HTTP GET请求
+        /// </summary>
+        /// <param name="url">请求地址</param>
+        /// <param name="parameters">请求文本参数</param>
+        /// <param name="headerParams">请求头文本参数</param>
+        /// <param name="referer">请求来源</param>
+        /// <param name="charset">字符集</param>
+        /// <param name="timeout">超时时间</param>
+        /// <param name="cookie">Cookies</param>
+        /// <returns>HTTP响应</returns>
+        public static string DoGet(string url, string parameters, IDictionary<string, string> headerParams = null, string referer = "", string charset = "utf-8", int timeout = 20000, CookieContainer cookie = null)
         {
             try
             {
-                HttpWebRequest req = GetWebRequest(url, "POST", null);
-                req.ContentType = "application/x-www-form-urlencoded;charset=" + charset;
-                req.CookieContainer = cookie;
-
-                byte[] postData = Encoding.GetEncoding(charset).GetBytes(BuildQuery(parameters, charset));
-                Stream reqStream = req.GetRequestStream();
-                reqStream.Write(postData, 0, postData.Length);
-                reqStream.Close();
-
-                HttpWebResponse rsp = (HttpWebResponse)req.GetResponse();
-                return GetResponseAsString(rsp, Encoding.GetEncoding(charset));
-            }
-            catch (Exception ex)
-            {
-                return "网络错误:" + ex.Message + "_" + ex.StackTrace;
-            }
-        }
-        public static string DoPost(string url, string parameters, string charset, CookieContainer cookie = null)
-        {
-            try
-            {
-                HttpWebRequest req = GetWebRequest(url, "POST", null);
-                req.ContentType = "application/x-www-form-urlencoded;charset=" + charset;
-                req.CookieContainer = cookie;
-
-                byte[] postData = Encoding.GetEncoding(charset).GetBytes(parameters);
-                Stream reqStream = req.GetRequestStream();
-                reqStream.Write(postData, 0, postData.Length);
-                reqStream.Close();
-
-                HttpWebResponse rsp = (HttpWebResponse) req.GetResponse();
-                return GetResponseAsString(rsp, Encoding.GetEncoding(charset));
+                return ((HttpWebResponse)HttpUtil.GetWebRequest(HttpUtil.BuildGetUrl(url, parameters), "GET", headerParams, referer, charset, timeout, cookie).GetResponse())
+                    .GetResponseAsString(Encoding.GetEncoding(charset));
             }
             catch (WebException ex)
             {
-                return GetResponseAsString((HttpWebResponse)ex.Response, Encoding.GetEncoding(charset));
-            }
-            catch (Exception ex)
-            {
-                return "网络错误:" + ex.Message + "_" + ex.StackTrace;
+                return $"网络错误：{ex.Message}_{ex.StackTrace}";
             }
         }
 
-        public static async Task<string> DoPostAsync(string url, string parameters, string charset, CookieContainer cookie = null)
+        /// <summary>
+        /// HTTP GET请求
+        /// </summary>
+        /// <param name="url">请求地址</param>
+        /// <param name="parameters">请求文本参数</param>
+        /// <param name="headerParams">请求头文本参数</param>
+        /// <param name="referer">请求来源</param>
+        /// <param name="charset">字符集</param>
+        /// <param name="timeout">超时时间</param>
+        /// <param name="cookie">Cookies</param>
+        /// <returns>HTTP响应</returns>
+        public static string DoGet(string url, IDictionary<string, string> parameters, IDictionary<string, string> headerParams = null, string referer = "", string charset = "utf-8", int timeout = 20000, CookieContainer cookie = null)
         {
             try
             {
-                HttpWebRequest req = GetWebRequest(url, "POST", null);
-                req.ContentType = "application/x-www-form-urlencoded;charset=" + charset;
-                req.CookieContainer = cookie;
-
-                byte[] postData = Encoding.GetEncoding(charset).GetBytes(parameters);
-                var reqStream =await req.GetRequestStreamAsync();
-
-                await reqStream.WriteAsync(postData, 0, postData.Length);
-                reqStream.Close();
-
-                HttpWebResponse rsp = (HttpWebResponse) await req.GetResponseAsync();
-                return await GetResponseAsStringAsync(rsp, Encoding.GetEncoding(charset));
+                return ((HttpWebResponse)HttpUtil.GetWebRequest(HttpUtil.BuildGetUrl(url, parameters, charset), "GET", headerParams, referer, charset, timeout, cookie).GetResponse())
+                    .GetResponseAsString(Encoding.GetEncoding(charset));
             }
             catch (WebException ex)
             {
-                return GetResponseAsString((HttpWebResponse)ex.Response, Encoding.GetEncoding(charset));
-            }
-            catch (Exception ex)
-            {
-                return "网络错误:" + ex.Message + "_" + ex.StackTrace;
+                return $"网络错误：{ex.Message}_{ex.StackTrace}";
             }
         }
-        public static string DoPost(string url, string parameters, string charset, CookieContainer cookie, string referer)
+        /// <summary>
+        /// HTTP GET请求（返回Header信息）
+        /// </summary>
+        /// <param name="url">请求地址</param>
+        /// <param name="parameters">请求文本参数</param>
+        /// <param name="headerParams">请求头文本参数</param>
+        /// <param name="referer">请求来源</param>
+        /// <param name="charset">字符集</param>
+        /// <param name="timeout">超时时间</param>
+        /// <param name="cookie">Cookies</param>
+        /// <returns>HTTP响应</returns>
+        public static string DoGetHeaders(string url, IDictionary<string, string> parameters, IDictionary<string, string> headerParams = null, string referer = "", string charset = "utf-8", int timeout = 20000, CookieContainer cookie = null)
         {
-            HttpWebResponse rsp=null;
             try
             {
-                HttpWebRequest req = GetWebRequest(url, "POST", null);
-                req.ContentType = "application/x-www-form-urlencoded; charset=" + charset;
-                req.CookieContainer = cookie;
-                req.Referer = referer;
+                return ((HttpWebResponse)HttpUtil.GetWebRequest(HttpUtil.BuildGetUrl(url, parameters, charset), "GET", headerParams, referer, charset, timeout, cookie).GetResponse()).Headers.ToString();
+            }
+            catch (WebException ex)
+            {
+                return $"网络错误：{ex.Message}_{ex.StackTrace}";
+            }
+        }
+        /// <summary>
+        ///  HTTP GET请求（将Cookie放置到Header中）
+        /// </summary>
+        /// <param name="url">请求地址</param>
+        /// <param name="parameters">请求文本参数</param>
+        /// <param name="charset">字符集</param>
+        /// <param name="timeout">超时时间</param>
+        /// <param name="cookie">Cookies</param>
+        /// <returns>HTTP响应</returns>
+        public static string DoGetSetCookie(string url, IDictionary<string, string> parameters, string charset = "utf-8", int timeout = 20000, string cookie = null)
+        {
+            try
+            {
+                return ((HttpWebResponse)HttpUtil.GetWebRequest(HttpUtil.BuildGetUrl(url, parameters, charset), "GET", null, "", charset, timeout, null, t => t.Headers[HttpRequestHeader.Cookie] = cookie).GetResponse())
+                    .GetResponseAsString(Encoding.GetEncoding(charset));
+            }
+            catch (WebException ex)
+            {
+                return $"网络错误：{ex.Message}_{ex.StackTrace}";
+            }
+        }
+        #endregion
 
-                byte[] postData = Encoding.GetEncoding(charset).GetBytes(parameters);
-                Stream reqStream = req.GetRequestStream();
-                reqStream.Write(postData, 0, postData.Length);
-                reqStream.Close();
+        #region HTTP POST
+        /// <summary>
+        /// HTTP POST请求
+        /// </summary>
+        /// <param name="url">请求地址</param>
+        /// <param name="parameters">请求文本参数</param>
+        /// <param name="referer">请求来源</param>
+        /// <param name="headerParams">请求头文本参数</param>
+        /// <param name="charset">字符集</param>
+        /// <param name="timeout">超时时间</param>
+        /// <param name="cookie">Cookies</param>
+        /// <returns>HTTP响应</returns>
+        public static string DoPost(string url, string parameters, string referer = "", IDictionary<string, string> headerParams = null, string charset = "utf-8", int timeout = 20000, CookieContainer cookie = null)
+        {
+            try
+            {
+                return ((HttpWebResponse)HttpUtil.GetWebRequest(url, "POST", headerParams, referer, charset, timeout, cookie)
+                        .GetRequestStream(charset, parameters).GetResponse())
+                    .GetResponseAsString(Encoding.GetEncoding(charset));
+            }
+            catch (WebException ex)
+            {
+                return $"网络错误：{ex.Message}_{ex.StackTrace}";
+            }
+        }
+        /// <summary>
+        /// HTTP POST请求
+        /// </summary>
+        /// <param name="url">请求地址</param>
+        /// <param name="parameters">请求文本参数</param>
+        /// <param name="referer">请求来源</param>
+        /// <param name="headerParams">请求头文本参数</param>
+        /// <param name="charset">字符集</param>
+        /// <param name="timeout">超时时间</param>
+        /// <param name="cookie">Cookies</param>
+        /// <returns>HTTP响应</returns>
+        public static string DoPost(string url, IDictionary<string, string> parameters, string referer = "", IDictionary<string, string> headerParams = null, string charset = "utf-8", int timeout = 20000, CookieContainer cookie = null)
+        {
+            try
+            {
+                return ((HttpWebResponse)HttpUtil.GetWebRequest(url, "POST", headerParams, referer, charset, timeout, cookie)
+                        .GetRequestStream(charset, parameters).GetResponse())
+                    .GetResponseAsString(Encoding.GetEncoding(charset));
+            }
+            catch (WebException ex)
+            {
+                return $"网络错误：{ex.Message}_{ex.StackTrace}";
+            }
+        }
 
-                rsp = (HttpWebResponse)req.GetResponse();
-                return GetResponseAsString(rsp, Encoding.GetEncoding(charset));
+        /// <summary>
+        /// HTTP POST请求（HTTP异常仍然返回Response信息）
+        /// </summary>
+        /// <param name="url">请求地址</param>
+        /// <param name="parameters">请求文本参数</param>
+        /// <param name="charset">字符集</param>
+        /// <param name="timeout">超时时间</param>
+        /// <param name="cookie">Cookies</param>
+        /// <returns>HTTP响应</returns>
+        public static string DoPostGetResponse(string url, string parameters, string charset = "utf-8", int timeout = 20000, CookieContainer cookie = null)
+        {
+            HttpWebResponse webResponse = null;
+            try
+            {
+                webResponse = (HttpWebResponse)HttpUtil.GetWebRequest(url, "POST", null, "", charset, timeout, cookie)
+                    .GetRequestStream(charset, parameters).GetResponse();
+                return webResponse.GetResponseAsString(Encoding.GetEncoding(charset));
             }
             catch (WebException)
             {
-                return GetResponseAsString(rsp, Encoding.GetEncoding(charset));
-                //return "网络错误:" + ex.Message + "_" + ex.StackTrace;
-            }
-        }
-
-        public static string DoPost(string url, IDictionary<string, string> parameters, string charset, CookieContainer cookie, string referer)
-        {
-            try
-            {
-                HttpWebRequest req = GetWebRequest(url, "POST", null);
-                req.ContentType = "application/x-www-form-urlencoded;charset=" + charset;
-                req.CookieContainer = cookie;
-                req.Referer = referer;
-
-                byte[] postData = Encoding.GetEncoding(charset).GetBytes(BuildQuery(parameters, charset));
-                Stream reqStream = req.GetRequestStream();
-                reqStream.Write(postData, 0, postData.Length);
-                reqStream.Close();
-
-                HttpWebResponse rsp = (HttpWebResponse)req.GetResponse();
-                return GetResponseAsString(rsp, Encoding.GetEncoding(charset));
+                return webResponse.GetResponseAsString(Encoding.GetEncoding(charset));
             }
             catch (Exception ex)
             {
-                return "网络错误:" + ex.Message + "_" + ex.StackTrace;
-            }
-        }
-        public static string DoPost(string url, IDictionary<string, string> parameters, string charset, CookieContainer cookie, string referer, IDictionary<string, string> headerParams)
-        {
-            try
-            {
-                HttpWebRequest req = GetWebRequest(url, "POST", headerParams);
-                req.ContentType = "application/x-www-form-urlencoded;charset=" + charset;
-                req.CookieContainer = cookie;
-                req.Referer = referer;
-                byte[] postData = Encoding.GetEncoding(charset).GetBytes(BuildQuery(parameters, charset));
-                Stream reqStream = req.GetRequestStream();
-                reqStream.Write(postData, 0, postData.Length);
-                reqStream.Close();
-
-                HttpWebResponse rsp = (HttpWebResponse)req.GetResponse();
-                return GetResponseAsString(rsp, Encoding.GetEncoding(charset));
-            }
-            catch (Exception ex)
-            {
-                return "网络错误:" + ex.Message + "_" + ex.StackTrace;
-            }
-        }
-        public static string DoPostHeaders(string url, IDictionary<string, string> parameters, string charset, CookieContainer cookie)
-        {
-            try
-            {
-                HttpWebRequest req = GetWebRequest(url, "POST", null);
-                req.ContentType = "application/x-www-form-urlencoded;charset=" + charset;
-                req.CookieContainer = cookie;
-                req.AllowAutoRedirect = false;
-
-                byte[] postData = Encoding.GetEncoding(charset).GetBytes(BuildQuery(parameters, charset));
-                Stream reqStream = req.GetRequestStream();
-                reqStream.Write(postData, 0, postData.Length);
-                reqStream.Close();
-
-                HttpWebResponse rsp = (HttpWebResponse)req.GetResponse();
-                return rsp.Headers.ToString();
-            }
-            catch (Exception ex)
-            {
-                return "网络错误:" + ex.Message + "_" + ex.StackTrace;
-            }
-        }
-
-        public static string DoGet(string url, IDictionary<string, string> parameters, string charset, CookieContainer cookie = null)
-        {
-            if (parameters != null && parameters.Count > 0)
-            {
-                if (url.Contains("?"))
-                {
-                    url = url + "&" + BuildQuery(parameters, charset);
-                }
-                else
-                {
-                    url = url + "?" + BuildQuery(parameters, charset);
-                }
-            }
-            try
-            {
-                HttpWebRequest req = GetWebRequest(url, "GET", null);
-                req.ContentType = "text/html, application/xhtml+xml, */*";
-                req.CookieContainer = cookie;
-                HttpWebResponse rsp = (HttpWebResponse)req.GetResponse();
-                return GetResponseAsString(rsp, Encoding.GetEncoding(charset));
-            }
-            catch (Exception ex)
-            {
-                return "网络错误:" + ex.Message + "_" + ex.StackTrace;
-            }
-        }
-        public static string DoGet(string url, IDictionary<string, string> parameters, string charset, CookieContainer cookie, string referer)
-        {
-            if (parameters != null && parameters.Count > 0)
-            {
-                if (url.Contains("?"))
-                {
-                    url = url + "&" + BuildQuery(parameters, charset);
-                }
-                else
-                {
-                    url = url + "?" + BuildQuery(parameters, charset);
-                }
-            }
-            try
-            {
-                HttpWebRequest req = GetWebRequest(url, "GET", null);
-                req.ContentType = "application/x-www-form-urlencoded;charset=" + charset;
-                req.CookieContainer = cookie;
-                req.Referer = referer;
-
-                HttpWebResponse rsp = (HttpWebResponse)req.GetResponse();
-                return GetResponseAsString(rsp, Encoding.GetEncoding(charset));
-            }
-            catch (Exception ex)
-            {
-                return "网络错误:" + ex.Message + "_" + ex.StackTrace;
-            }
-        }
-        public static string DoGet(string url, IDictionary<string, string> parameters, string charset, CookieContainer cookie, IDictionary<string, string> headerParams)
-        {
-            if (parameters != null && parameters.Count > 0)
-            {
-                if (url.Contains("?"))
-                {
-                    url = url + "&" + BuildQuery(parameters, charset);
-                }
-                else
-                {
-                    url = url + "?" + BuildQuery(parameters, charset);
-                }
-            }
-            try
-            {
-                HttpWebRequest req = GetWebRequest(url, "GET", headerParams);
-                req.ContentType = "application/x-www-form-urlencoded;charset=" + charset;
-                req.CookieContainer = cookie;
-
-                HttpWebResponse rsp = (HttpWebResponse)req.GetResponse();
-                return GetResponseAsString(rsp, Encoding.GetEncoding(charset));
-            }
-            catch (WebException ex)
-            {
-                return "网络错误:" + ex.Message + "_" + ex.StackTrace;
-            }
-        }
-        public static string DoGetHeaders(string url, IDictionary<string, string> parameters, string charset, CookieContainer cookie)
-        {
-            if (parameters != null && parameters.Count > 0)
-            {
-                if (url.Contains("?"))
-                {
-                    url = url + "&" + BuildQuery(parameters, charset);
-                }
-                else
-                {
-                    url = url + "?" + BuildQuery(parameters, charset);
-                }
-            }
-            try
-            {
-                HttpWebRequest req = GetWebRequest(url, "GET", null);
-                req.ContentType = "application/x-www-form-urlencoded;charset=" + charset;
-                req.CookieContainer = cookie;
-
-                HttpWebResponse rsp = (HttpWebResponse)req.GetResponse();
-                return rsp.Headers.ToString();
-            }
-            catch (WebException ex)
-            {
-                return "网络错误:" + ex.Message + "_" + ex.StackTrace;
-            }
-        }
-        public static string DoGetSetCookie(string url, IDictionary<string, string> parameters, string charset, string cookie)
-        {
-            if (parameters != null && parameters.Count > 0)
-            {
-                if (url.Contains("?"))
-                {
-                    url = url + "&" + BuildQuery(parameters, charset);
-                }
-                else
-                {
-                    url = url + "?" + BuildQuery(parameters, charset);
-                }
-            }
-            try
-            {
-                HttpWebRequest req = GetWebRequest(url, "GET", null);
-                req.ContentType = "application/x-www-form-urlencoded;charset=" + charset;
-                req.Headers[HttpRequestHeader.Cookie] = cookie;
-
-                HttpWebResponse rsp = (HttpWebResponse)req.GetResponse();
-                return GetResponseAsString(rsp, Encoding.GetEncoding(charset));
-            }
-            catch (WebException ex)
-            {
-                return "网络错误:" + ex.Message + "_" + ex.StackTrace;
-            }
-        }
-
-        public static bool CheckValidationResult(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors)
-        { //直接确认，否则打不开
-            return true;
-        }
-        public static HttpWebRequest GetWebRequest(string url, string method, IDictionary<string, string> headerParams)
-        {
-            HttpWebRequest req;
-            if (url.Contains("https"))
-            {
-                ServicePointManager.ServerCertificateValidationCallback = CheckValidationResult;
-                req = (HttpWebRequest)WebRequest.CreateDefault(new Uri(url));
-            }
-            else
-            {
-                req = (HttpWebRequest)WebRequest.Create(url);
-            }
-            if (headerParams != null && headerParams.Count > 0)
-            {
-                foreach (string key in headerParams.Keys)
-                {
-                    req.Headers.Add(key, headerParams[key]);
-                }
-            }
-            // req.ServicePoint.Expect100Continue = false;   //不支持跨平台
-            req.Accept = "*/*";
-            req.Method = method;
-            req.KeepAlive = true;
-            req.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko";
-            req.Timeout = _timeout;
-            req.ReadWriteTimeout = _readWriteTimeout;
-
-            return req;
-        }
-        /// <summary>
-        /// 把响应流转换为文本。
-        /// </summary>
-        /// <param name="rsp">响应流对象</param>
-        /// <param name="encoding">编码方式</param>
-        /// <returns>响应文本</returns>
-        public static string GetResponseAsString(HttpWebResponse rsp, Encoding encoding)
-        {
-            Stream stream = null;
-            StreamReader reader = null;
-            try
-            {
-                // 以字符流的方式读取HTTP响应
-                stream = rsp.GetResponseStream();
-                reader = new StreamReader(stream, encoding);
-                return reader.ReadToEnd();
-            }
-            finally
-            {
-                // 释放资源
-                if (reader != null) reader.Close();
-                if (stream != null) stream.Close();
-                if (rsp != null) rsp.Close();
-            }
-        }
-
-        /// <summary>
-        /// 把响应流转换为文本。
-        /// </summary>
-        /// <param name="rsp">响应流对象</param>
-        /// <param name="encoding">编码方式</param>
-        /// <returns>响应文本</returns>
-        public static async Task<string> GetResponseAsStringAsync(HttpWebResponse rsp, Encoding encoding)
-        {
-            Stream stream = null;
-            StreamReader reader = null;
-            try
-            {
-                // 以字符流的方式读取HTTP响应
-                stream = rsp.GetResponseStream();
-                reader = new StreamReader(stream, encoding);
-                return await reader.ReadToEndAsync();
-            }
-            finally
-            {
-                // 释放资源
-                if (reader != null) reader.Close();
-                if (stream != null) stream.Close();
-                if (rsp != null) rsp.Close();
+                return $"网络错误：{ex.Message}_{ex.StackTrace}";
             }
         }
         /// <summary>
-        /// 组装GET请求URL。
+        /// HTTP POST请求（返回Header信息）
         /// </summary>
         /// <param name="url">请求地址</param>
-        /// <param name="parameters">请求参数</param>
-        /// <returns>带参数的GET请求URL</returns>
-        public static string BuildGetUrl(string url, IDictionary<string, string> parameters, string charset)
+        /// <param name="parameters">请求文本参数</param>
+        /// <param name="charset">字符集</param>
+        /// <param name="timeout">超时时间</param>
+        /// <param name="cookie">Cookies</param>
+        /// <returns>HTTP响应</returns>
+        public static string DoPostHeaders(string url, IDictionary<string, string> parameters, string charset = "utf-8", int timeout = 20000, CookieContainer cookie = null)
         {
-            if (parameters != null && parameters.Count > 0)
+            try
             {
-                if (url.Contains("?"))
-                {
-                    url = url + "&" + BuildQuery(parameters, charset);
-                }
-                else
-                {
-                    url = url + "?" + BuildQuery(parameters, charset);
-                }
+                return ((HttpWebResponse)HttpUtil.GetWebRequest(url, "POST", null, "", charset, timeout, cookie, c => c.AllowAutoRedirect = false)
+                    .GetRequestStream(charset, parameters).GetResponse()).Headers.ToString();
             }
-            return url;
+            catch (Exception ex)
+            {
+                return $"网络错误：{ex.Message}_{ex.StackTrace}";
+            }
         }
         /// <summary>
-        /// 组装普通文本请求参数。
+        /// HTTP POST请求（执行带文件上传）
         /// </summary>
-        /// <param name="parameters">Key-Value形式请求参数字典</param>
-        /// <returns>URL编码后的请求数据</returns>
-        public static string BuildQuery(IDictionary<string, string> parameters, string charset)
+        /// <param name="url">请求地址</param>
+        /// <param name="parameters">请求文本参数</param>
+        /// <param name="fileParams">请求文件参数</param>
+        /// <param name="referer">请求来源</param>
+        /// <param name="charset">字符集</param>
+        /// <param name="timeout">超时时间</param>
+        /// <param name="cookie">Cookies</param>
+        /// <returns>HTTP响应</returns>
+        public string DoPost(string url, IDictionary<string, string> parameters, IDictionary<string, FileItem> fileParams, string referer = "", string charset = "utf-8", int timeout = 20000, CookieContainer cookie = null)
         {
-            return BuildQuery(parameters, charset, true);
-        }
-        /// <summary>
-        ///  Charge
-        /// </summary>
-        /// <param name="parameters"></param>
-        /// <param name="charset"></param>
-        /// <returns></returns>
-        public static string BuildQuery(IDictionary<string, string> parameters, string charset, bool hasParam)
-        {
-            StringBuilder postData = new StringBuilder();
-
-            IEnumerator<KeyValuePair<string, string>> dem = parameters.GetEnumerator();
-
-            while (dem.MoveNext())
+            // 如果没有文件参数，则走普通POST请求
+            if (fileParams == null || fileParams.Count == 0)
             {
-                string name = dem.Current.Key;
-                string value = dem.Current.Value;
-                // 忽略参数名或参数值为空的参数
-
-                postData.Append(name);
-                postData.Append("=");
-                if (charset == "")
-                    postData.Append(value);
-                else
-                    postData.Append(HttpUtility.UrlEncode(value, Encoding.GetEncoding(charset)));
-                if (hasParam)
-                {
-                    postData.Append("&");
-                }
-
+                return DoPost(url, parameters);
             }
-            return postData.ToString().TrimEnd('&');
-        }
 
-        /// <summary>
-        /// 校验SPI请求签名，适用于Content-Type为application/x-www-form-urlencoded或multipart/form-data的GET或POST请求
-        /// </summary>
-        /// <param name="parameters"></param>
-        /// <param name="secret"></param>
-        /// <returns></returns>
-        public static string SignRequest(IDictionary<string, string> parameters, string secret)
-        {
-            // 第一步：把字典按Key的字母顺序排序
-            IDictionary<string, string> sortedParams = new SortedDictionary<string, string>(parameters, StringComparer.Ordinal);
-            IEnumerator<KeyValuePair<string, string>> dem = sortedParams.GetEnumerator();
+            string boundary = DateTime.Now.Ticks.ToString("X"); // 随机分隔线
 
-            // 第二步：把所有参数名和参数值串在一起
-            StringBuilder query = new StringBuilder();
-            while (dem.MoveNext())
+            HttpWebRequest req = HttpUtil.GetWebRequest(url, "POST", null, referer, charset, timeout, cookie);
+            req.ContentType = $"multipart/form-data;charset={charset};boundary={boundary}";
+
+            System.IO.Stream reqStream = req.GetRequestStream();
+            byte[] itemBoundaryBytes = Encoding.GetEncoding(charset).GetBytes(string.Format("\r\n--{0}\r\n", boundary));
+            byte[] endBoundaryBytes = Encoding.GetEncoding(charset).GetBytes(string.Format("\r\n--{0}--\r\n", boundary));
+
+            // 组装文本请求参数
+            string textTemplate = "Content-Disposition:form-data;name=\"{0}\"\r\nContent-Type:text/plain\r\n\r\n{1}";
+            IEnumerator<KeyValuePair<string, string>> textEnum = parameters.GetEnumerator();
+            while (textEnum.MoveNext())
             {
-                string key = dem.Current.Key;
-                string value = dem.Current.Value;
-                if (!string.IsNullOrEmpty(key) && !string.IsNullOrEmpty(value))
+                string name = textEnum.Current.Key;
+                string value = textEnum.Current.Value;
+                if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(value))
                 {
-                    query.Append(key).Append(value);
+                    string textEntry = string.Format(textTemplate, textEnum.Current.Key, textEnum.Current.Value);
+                    byte[] itemBytes = Encoding.UTF8.GetBytes(textEntry);
+                    reqStream.Write(itemBoundaryBytes, 0, itemBoundaryBytes.Length);
+                    reqStream.Write(itemBytes, 0, itemBytes.Length);
                 }
             }
-            query.Append(secret);
 
-            return query.ToString();
+            // 组装文件请求参数
+            string fileTemplate = "Content-Disposition:form-data;name=\"{0}\";filename=\"{1}\"\r\nContent-Type:{2}\r\n\r\n";
+            IEnumerator<KeyValuePair<string, FileItem>> fileEnum = fileParams.GetEnumerator();
+            while (fileEnum.MoveNext())
+            {
+                string key = fileEnum.Current.Key;
+                FileItem fileItem = fileEnum.Current.Value;
+                string fileEntry = string.Format(fileTemplate, key, fileItem.GetFileName(), fileItem.GetMimeType());
+                byte[] itemBytes = Encoding.UTF8.GetBytes(fileEntry);
+                reqStream.Write(itemBoundaryBytes, 0, itemBoundaryBytes.Length);
+                reqStream.Write(itemBytes, 0, itemBytes.Length);
+
+                byte[] fileBytes = fileItem.GetContent();
+                reqStream.Write(fileBytes, 0, fileBytes.Length);
+            }
+
+            reqStream.Write(endBoundaryBytes, 0, endBoundaryBytes.Length);
+            reqStream.Close();
+
+            return ((HttpWebResponse)req.GetResponse()).GetResponseAsString(Encoding.GetEncoding(charset));
         }
+        #endregion
+
+        #region HTTP PUT
+        /// <summary>
+        /// HTTP PUT请求
+        /// </summary>
+        /// <param name="url">请求地址</param>
+        /// <param name="parameters">请求文本参数</param>
+        /// <param name="referer">请求来源</param>
+        /// <param name="headerParams">请求头文本参数</param>
+        /// <param name="charset">字符集</param>
+        /// <param name="timeout">超时时间</param>
+        /// <param name="cookie">Cookies</param>
+        /// <returns>HTTP响应</returns>
+        public static string DoPut(string url, string parameters, string referer = "", IDictionary<string, string> headerParams = null, string charset = "utf-8", int timeout = 20000, CookieContainer cookie = null)
+        {
+            try
+            {
+                return ((HttpWebResponse)HttpUtil.GetWebRequest(url, "PUT", headerParams, referer, charset, timeout, cookie)
+                        .GetRequestStream(charset, parameters).GetResponse())
+                    .GetResponseAsString(Encoding.GetEncoding(charset));
+            }
+            catch (WebException ex)
+            {
+                return $"网络错误：{ex.Message}_{ex.StackTrace}";
+            }
+        }
+        /// <summary>
+        /// HTTP PUT请求
+        /// </summary>
+        /// <param name="url">请求地址</param>
+        /// <param name="parameters">请求文本参数</param>
+        /// <param name="referer">请求来源</param>
+        /// <param name="headerParams">请求头文本参数</param>
+        /// <param name="charset">字符集</param>
+        /// <param name="timeout">超时时间</param>
+        /// <param name="cookie">Cookies</param>
+        /// <returns>HTTP响应</returns>
+        public static string DoPut(string url, IDictionary<string, string> parameters, string referer = "", IDictionary<string, string> headerParams = null, string charset = "utf-8", int timeout = 20000, CookieContainer cookie = null)
+        {
+            try
+            {
+                return ((HttpWebResponse)HttpUtil.GetWebRequest(url, "PUT", headerParams, referer, charset, timeout, cookie)
+                        .GetRequestStream(charset, parameters).GetResponse())
+                    .GetResponseAsString(Encoding.GetEncoding(charset));
+            }
+            catch (WebException ex)
+            {
+                return $"网络错误：{ex.Message}_{ex.StackTrace}";
+            }
+        }
+        #endregion
+
+        #region HTTP DELETE
+        /// <summary>
+        /// HTTP GET请求
+        /// </summary>
+        /// <param name="url">请求地址</param>
+        /// <param name="parameters">请求文本参数</param>
+        /// <param name="headerParams">请求头文本参数</param>
+        /// <param name="referer">请求来源</param>
+        /// <param name="charset">字符集</param>
+        /// <param name="timeout">超时时间</param>
+        /// <param name="cookie">Cookies</param>
+        /// <returns>HTTP响应</returns>
+        public static string DoDelete(string url, string parameters, IDictionary<string, string> headerParams = null, string referer = "", string charset = "utf-8", int timeout = 20000, CookieContainer cookie = null)
+        {
+            try
+            {
+                return ((HttpWebResponse)HttpUtil.GetWebRequest(HttpUtil.BuildGetUrl(url, parameters), "DELETE", headerParams, referer, charset, timeout, cookie).GetResponse())
+                    .GetResponseAsString(Encoding.GetEncoding(charset));
+            }
+            catch (WebException ex)
+            {
+                return $"网络错误：{ex.Message}_{ex.StackTrace}";
+            }
+        }
+        /// <summary>
+        /// HTTP DELETE请求
+        /// </summary>
+        /// <param name="url">请求地址</param>
+        /// <param name="parameters">请求文本参数</param>
+        /// <param name="headerParams">请求头文本参数</param>
+        /// <param name="referer">请求来源</param>
+        /// <param name="charset">字符集</param>
+        /// <param name="timeout">超时时间</param>
+        /// <param name="cookie">Cookies</param>
+        /// <returns>HTTP响应</returns>
+        public static string DoDelete(string url, IDictionary<string, string> parameters, IDictionary<string, string> headerParams = null, string referer = "", string charset = "utf-8", int timeout = 20000, CookieContainer cookie = null)
+        {
+            try
+            {
+                return ((HttpWebResponse)HttpUtil.GetWebRequest(HttpUtil.BuildGetUrl(url, parameters, charset), "DELETE", headerParams, referer, charset, timeout, cookie).GetResponse())
+                    .GetResponseAsString(Encoding.GetEncoding(charset));
+            }
+            catch (WebException ex)
+            {
+                return $"网络错误：{ex.Message}_{ex.StackTrace}";
+            }
+        }
+        #endregion
     }
 }

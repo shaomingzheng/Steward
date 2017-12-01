@@ -1,0 +1,12 @@
+﻿################################################################################
+# 此 .gitignore 文件已由 Microsoft(R) Visual Studio 自动创建。
+################################################################################
+
+/ICH.Core/bin/Debug/netcoreapp2.0
+/ICH.Sugar/bin/Debug/netcoreapp2.0
+/ICH.Steward.WebAPI/bin/Debug/netcoreapp2.0
+/ICH.Steward.WebAPI/obj
+/ICH.Sugar/obj/Debug/netcoreapp2.0
+/ICH.Steward.Domain/obj
+/ICH.Steward.Domain/bin/Debug/netcoreapp2.0
+/ICH.Core/obj

@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using ICH.Core.Cache;
 using ICH.Core.Web;
 using ICH.Steward.Domain.Interfaces.Repositories;
+using ICH.Steward.Domain.Models;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
@@ -25,6 +26,7 @@ namespace ICH.Steward.WebAPI.Controllers
         [HttpGet]
         public async Task<JsonResult> Get()
         {
+            var a=_cache.Get<Base_UserEntity>("test");
             bool r = await _cache.AddAsync("test", "ichnb");
             //bool r=  await _baseUserRepository.BatchSetOpenIdAsync(); //同步openid
             //int total = 0;
