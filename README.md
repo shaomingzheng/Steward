@@ -1,3 +1,3 @@
-### ich团队
+### ich team
 
-#### Steward .NET CORE 项目源码
+#### Steward With .NET CORE
