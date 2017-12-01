@@ -41,7 +41,7 @@ namespace ICH.Steward.WebAPI.Controllers
                 if (_memoryCache.TryGetValue(clamin.Value, out expireTime))
                 {
                     var parameters = $"access_token={clamin.Value}";
-                    var result = await WebUtils.DoPostAsync(AppSettings.UserInfoEndpoint, parameters, "utf-8");    //得到用户信息
+                    var result = await Task.FromResult(WebUtils.DoPost(AppSettings.UserInfoEndpoint, parameters));    //得到用户信息
                     var data = JsonConvert.DeserializeObject<dynamic>(result);
                     var userdata = data.data;
                     if (data.code == "0"&&null!= userdata)

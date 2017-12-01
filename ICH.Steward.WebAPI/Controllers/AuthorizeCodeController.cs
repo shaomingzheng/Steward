@@ -28,7 +28,7 @@ namespace ICH.Steward.WebAPI.Controllers
         {
             var parameters =
                 $"grant_type=authorization_code&code={data.code}&state={data.state}&redirect_uri={data.redirect_uri}&client_id={AppSettings.ClientId}&client_secret={AppSettings.ClientSecret}";
-            var result = await WebUtils.DoPostAsync(AppSettings.TokenEndpoint, parameters, "utf-8"); //得到令牌
+            var result = await Task.FromResult(WebUtils.DoPost(AppSettings.TokenEndpoint, parameters)); //得到令牌
 
             var resdata = JsonConvert.DeserializeObject<dynamic>(result);
             if (resdata.access_token == null)
