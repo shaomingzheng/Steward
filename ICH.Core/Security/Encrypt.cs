@@ -3,7 +3,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace ICH.Steward.Domain.DEncrypt
+namespace ICH.Core.Security
 {
     /// <summary>
     /// 加密解密实用类。
@@ -11,8 +11,8 @@ namespace ICH.Steward.Domain.DEncrypt
     public class Encrypt
     {
         //密钥
-        private static byte[] arrDESKey = new byte[] { 42, 16, 93, 156, 78, 4, 218, 32 };
-        private static byte[] arrDESIV = new byte[] { 55, 103, 246, 79, 36, 99, 167, 3 };
+        private static byte[] arrDESKey = { 42, 16, 93, 156, 78, 4, 218, 32 };
+        private static byte[] arrDESIV = { 55, 103, 246, 79, 36, 99, 167, 3 };
 
         /// <summary>
         /// 加密。
@@ -62,7 +62,7 @@ namespace ICH.Steward.Domain.DEncrypt
         /// <returns></returns>
         public static string Md5(string str)
         {
-            MD5 md = new MD5CryptoServiceProvider();
+            System.Security.Cryptography.MD5 md = new MD5CryptoServiceProvider();
             byte[] data = System.Text.Encoding.Default.GetBytes(str);//将字符串编码为一个字符序列
             byte[] md5Data = md.ComputeHash(data);//计算data的字节数组的hash值
             md.Clear();

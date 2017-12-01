@@ -2,7 +2,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace ICH.Steward.Domain.DEncrypt
+namespace ICH.Core.Security
 {
     /// <summary> 
     /// RSA加密解密及RSA签名和验证

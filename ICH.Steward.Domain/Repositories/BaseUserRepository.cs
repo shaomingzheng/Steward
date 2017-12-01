@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using ICH.Steward.Domain.DEncrypt;
+using ICH.Core.Security;
 using ICH.Steward.Domain.Interfaces.Repositories;
 using ICH.Steward.Domain.Models;
 using ICH.Sugar;

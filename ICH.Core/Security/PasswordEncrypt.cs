@@ -2,7 +2,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace ICH.Steward.Domain.DEncrypt
+namespace ICH.Core.Security
 {
     public class PasswordEncrypt
     {

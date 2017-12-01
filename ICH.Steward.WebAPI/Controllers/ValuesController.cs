@@ -14,11 +14,11 @@ namespace ICH.Steward.WebAPI.Controllers
     //[Authorize(Policy = "Token")]
     public class ValuesController : Controller
     {
-        private IBaseUserRepository _baseUserRepository;
+        private IUserRepository _userRepository;
         private ICacheService _cache;
-        public ValuesController(IBaseUserRepository baseUserRepository, ICacheService cache)
+        public ValuesController(IUserRepository userRepository, ICacheService cache)
         {
-            _baseUserRepository = baseUserRepository;
+            _userRepository = userRepository;
             _cache = cache;
         }
 
@@ -26,11 +26,8 @@ namespace ICH.Steward.WebAPI.Controllers
         [HttpGet]
         public async Task<JsonResult> Get()
         {
-            var a=_cache.Get<Base_UserEntity>("test");
+            //var a=_cache.Get<Base_UserEntity>("test");
             bool r = await _cache.AddAsync("test", "ichnb");
-            //bool r=  await _baseUserRepository.BatchSetOpenIdAsync(); //同步openid
-            //int total = 0;
-            // var list =await _baseUserRepository.FindListAsync(t => true, "realname", true, 10, 1);
             return Json(ResponseResult.Execute(r));
             //return new string[] { "value1", "value2" };
         }
